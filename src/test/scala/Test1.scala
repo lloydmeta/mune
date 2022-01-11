@@ -24,11 +24,7 @@ trait TestEnum[T <: TestEnumEntry] {
 
 }
 
-object TestEnum {
-  implicit inline def materializeEnum[A <: TestEnumEntry]: A = EnumMacros.materializeEnumImpl[A]
-}
-
-def getEnumForEntry[A <: TestEnumEntry: TestEnum](a: A): TestEnum[A] = implicitly[TestEnum[A]]
+inline def getEnumForEntry[A <: TestEnumEntry](a: A): TestEnum[A] = EnumMacros.materializeEnumImpl[TestEnum[A]]
 
 sealed trait SomeEnum extends TestEnumEntry
 
