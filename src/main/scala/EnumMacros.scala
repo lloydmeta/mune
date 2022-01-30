@@ -53,8 +53,8 @@ object EnumMacros {
     import q.reflect._
     val tType = TypeRepr.of[T]
     tType match {
-      case andType: AndOrType => {
-        andType.right match {
+      // case andType: AndOrType => {
+      //   andType.right match {
           case apType: AppliedType => {
             val lastTypeRef     = apType.args.last
             val companionSymbol = lastTypeRef.typeSymbol.companionModule
@@ -99,11 +99,11 @@ object EnumMacros {
           case _ =>
             report.throwError("unexpected")
         }
-      }
-      case _ => {
-        report.throwError("meh")
-      }
-    }
+    //   }
+    //   case _ => {
+    //     report.throwError("meh")
+    //   }
+    // }
 
   }
 }
