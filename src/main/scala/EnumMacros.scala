@@ -53,57 +53,50 @@ object EnumMacros {
     import q.reflect._
     val tType = TypeRepr.of[T]
     tType match {
-      // case andType: AndOrType => {
-      //   andType.right match {
-          case apType: AppliedType => {
-            val lastTypeRef     = apType.args.last
-            val companionSymbol = lastTypeRef.typeSymbol.companionModule
-            // report.info(s"companionSymbol [${companionSymbol}] [${lastTypeRef}] [${lastTypeRef.isSingleton}]")
-            if (companionSymbol.isNoSymbol) {
-              report.throwError(
-                s"""
-                  |
-                  |  Could not find the companion object for type $companionSymbol.
-                  |
-                  |  If you're sure the companion object exists, you might be able to fix this error by annotating the
-                  |  value you're trying to find the companion object for with a parent type (e.g. Light.Red: Light).
-                  |
-                  |  This error usually happens when trying to find the companion object of a hard-coded enum member, and
-                  |  is caused by Scala inferring the type to be the member's singleton type (e.g. Light.Red.type instead of
-                  |  Light).
-                  |
-                  |  To illustrate, given an enum:
-                  |
-                  |  sealed abstract class Light extends EnumEntry
-                  |  case object Light extends Enum[Light] {
-                  |    val values = findValues
-                  |    case object Red   extends Light
-                  |    case object Blue  extends Light
-                  |    case object Green extends Light
-                  |  }
-                  |
-                  |  and a method:
-                  |
-                  |  def indexOf[A <: EnumEntry: Enum](entry: A): Int = implicitly[Enum[A]].indexOf(entry)
-                  |
-                  |  Instead of calling like so: indexOf(Light.Red)
-                  |                Call like so: indexOf(Light.Red: Light)
+      case apType: AppliedType => {
+        val lastTypeRef     = apType.args.last
+        val companionSymbol = lastTypeRef.typeSymbol.companionModule
+        // report.info(s"companionSymbol [${companionSymbol}] [${lastTypeRef}] [${lastTypeRef.isSingleton}]")
+        if (companionSymbol.isNoSymbol) {
+          report.throwError(
+            s"""
+               |
+               |  Could not find the companion object for type $companionSymbol.
+               |
+               |  If you're sure the companion object exists, you might be able to fix this error by annotating the
+               |  value you're trying to find the companion object for with a parent type (e.g. Light.Red: Light).
+               |
+               |  This error usually happens when trying to find the companion object of a hard-coded enum member, and
+               |  is caused by Scala inferring the type to be the member's singleton type (e.g. Light.Red.type instead of
+               |  Light).
+               |
+               |  To illustrate, given an enum:
+               |
+               |  sealed abstract class Light extends EnumEntry
+               |  case object Light extends Enum[Light] {
+               |    val values = findValues
+               |    case object Red   extends Light
+               |    case object Blue  extends Light
+               |    case object Green extends Light
+               |  }
+               |
+               |  and a method:
+               |
+               |  def indexOf[A <: EnumEntry: Enum](entry: A): Int = implicitly[Enum[A]].indexOf(entry)
+               |
+               |  Instead of calling like so: indexOf(Light.Red)
+               |                Call like so: indexOf(Light.Red: Light)
                 """.stripMargin
-              )
-            } else {
-              val memberType = tType.memberType(companionSymbol)
-              // report.warning(s"memberType [${memberType =:= lastTypeRef}] [${lastTypeRef.show}]")
-              Ref(companionSymbol).asExprOf[T]
-            }
-          }
-          case _ =>
-            report.throwError("unexpected")
+          )
+        } else {
+          val memberType = tType.memberType(companionSymbol)
+          // report.warning(s"memberType [${memberType =:= lastTypeRef}] [${lastTypeRef.show}]")
+          Ref(companionSymbol).asExprOf[T]
         }
-    //   }
-    //   case _ => {
-    //     report.throwError("meh")
-    //   }
-    // }
+      }
+      case _ =>
+        report.throwError("unexpected")
+    }
 
   }
 }
